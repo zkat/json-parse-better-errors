@@ -19,12 +19,14 @@ const parseError = (e, txt, context) => {
     const end = errIdx + context >= txt.length ? txt.length
       : errIdx + context
 
+    const slice = (start === 0 ? '' : '...') +
+      txt.slice(start, end) +
+      (end === txt.length ? '' : '...')
+
+    const near = txt === slice ? '' : 'near '
+
     return {
-      message: e.message + ` while parsing near '${
-          start === 0 ? '' : '...'
-        }${txt.slice(start, end)}${
-          end === txt.length ? '' : '...'
-        }'`,
+      message: e.message + ` while parsing ${near}'${slice}'`,
       position: errIdx,
     }
   } else {

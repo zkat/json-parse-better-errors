@@ -20,7 +20,7 @@ t.test('throws SyntaxError for unexpected token', t => {
   t.throws(
     () => parseJson(data),
     {
-      message: 'Unexpected token o in JSON at position 1 while parsing near \'foo\'',
+      message: 'Unexpected token o in JSON at position 1 while parsing \'foo\'',
       code: 'EJSONPARSE',
       position: 1,
       name: 'JSONParseError',
@@ -35,7 +35,7 @@ t.test('throws SyntaxError for unexpected end of JSON', t => {
   t.throws(
     () => parseJson(data),
     {
-      message: 'Unexpected end of JSON input while parsing near \'{"foo: bar}\'',
+      message: 'Unexpected end of JSON input while parsing \'{"foo: bar}\'',
       code: 'EJSONPARSE',
       position: 10,
       name: 'JSONParseError',
