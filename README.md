@@ -30,7 +30,22 @@ parseJson('garbage') // more useful error message
 
 ### API
 
-#### <a name="parse"></a> `> parse(txt, ?reviver, ?context=20)`
+#### <a name="parse"></a> `parse(txt, reviver = null, context = 20)`
 
 Works just like `JSON.parse`, but will include a bit more information when an
-error happens.
+error happens.  This throws a `JSONParseError`.
+
+#### <a name="jsonparseerror"></a> `class JSONParseError(er, text, context = 20, caller = null)`
+
+Extends the JavaScript `SyntaxError` class to parse the message and provide
+better metadata.
+
+Pass in the error thrown by the built-in `JSON.parse`, and the text being
+parsed, and it'll parse out the bits needed to be helpful.
+
+`context` defaults to 20.
+
+Set a `caller` function to trim internal implementation details out of the
+stack trace.  When calling `parseJson`, this is set to the `parseJson`
+function.  If not set, then the constructor defaults to itself, so the
+stack trace will point to the spot where you call `new JSONParseError`.

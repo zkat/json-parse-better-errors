@@ -1,10 +1,10 @@
 'use strict'
 
-const test = require('tap').test
+const t = require('tap')
 
 const parseJson = require('..')
 
-test('parses JSON', t => {
+t.test('parses JSON', t => {
   const data = JSON.stringify({
     foo: 1,
     bar: {
@@ -15,50 +15,81 @@ test('parses JSON', t => {
   t.done()
 })
 
-test('throws SyntaxError for unexpected token', t => {
+t.test('throws SyntaxError for unexpected token', t => {
   const data = 'foo'
   t.throws(
     () => parseJson(data),
-    new SyntaxError('Unexpected token o in JSON at position 1 while parsing near \'foo\'')
+    {
+      message: 'Unexpected token o in JSON at position 1 while parsing near \'foo\'',
+      code: 'EJSONPARSE',
+      position: 1,
+      name: 'JSONParseError',
+      systemError: SyntaxError
+    }
   )
   t.done()
 })
 
-test('throws SyntaxError for unexpected end of JSON', t => {
+t.test('throws SyntaxError for unexpected end of JSON', t => {
   const data = '{"foo: bar}'
   t.throws(
     () => parseJson(data),
-    new SyntaxError('Unexpected end of JSON input while parsing near \'{"foo: bar}\'')
+    {
+      message: 'Unexpected end of JSON input while parsing near \'{"foo: bar}\'',
+      code: 'EJSONPARSE',
+      position: 10,
+      name: 'JSONParseError',
+      systemError: SyntaxError
+    }
   )
   t.done()
 })
 
-test('throws SyntaxError for unexpected number', t => {
+t.test('throws SyntaxError for unexpected number', t => {
   const data = '[[1,2],{3,3,3,3,3}]'
   t.throws(
     () => parseJson(data),
-    new SyntaxError('Unexpected number in JSON at position 8')
+    {
+      message: 'Unexpected number in JSON at position 8',
+      code: 'EJSONPARSE',
+      position: 0,
+      name: 'JSONParseError',
+      systemError: SyntaxError
+    }
   )
   t.done()
 })
 
-test('SyntaxError with less context (limited start)', t => {
+t.test('SyntaxError with less context (limited start)', t => {
   const data = '{"6543210'
   t.throws(
     () => parseJson(data, null, 3),
-    new SyntaxError('Unexpected end of JSON input while parsing near \'...3210\''))
+    {
+      message: 'Unexpected end of JSON input while parsing near \'...3210\'',
+      code: 'EJSONPARSE',
+      position: 8,
+      name: 'JSONParseError',
+      systemError: SyntaxError
+    })
   t.done()
 })
 
-test('SyntaxError with less context (limited end)', t => {
+t.test('SyntaxError with less context (limited end)', t => {
   const data = 'abcde'
   t.throws(
     () => parseJson(data, null, 2),
-    new SyntaxError('Unexpected token a in JSON at position 0 while parsing near \'ab...\''))
+    {
+      message: 'Unexpected token a in JSON at position 0 while parsing near \'ab...\'',
+      code: 'EJSONPARSE',
+      position: 0,
+      name: 'JSONParseError',
+      systemError: SyntaxError
+    }
+  )
   t.done()
 })
 
-test('throws TypeError for undefined', t => {
+t.test('throws TypeError for undefined', t => {
   t.throws(
     () => parseJson(undefined),
     new TypeError('Cannot parse undefined')
@@ -66,7 +97,7 @@ test('throws TypeError for undefined', t => {
   t.done()
 })
 
-test('throws TypeError for non-strings', t => {
+t.test('throws TypeError for non-strings', t => {
   t.throws(
     () => parseJson(new Map()),
     new TypeError('Cannot parse [object Map]')
@@ -74,10 +105,39 @@ test('throws TypeError for non-strings', t => {
   t.done()
 })
 
-test('throws TypeError for empty arrays', t => {
+t.test('throws TypeError for empty arrays', t => {
   t.throws(
     () => parseJson([]),
     new TypeError('Cannot parse an empty array')
   )
   t.done()
+})
+
+t.test('json parse error class', t => {
+  t.isa(parseJson.JSONParseError, 'function')
+  // we already checked all the various index checking logic above
+  const poop = new Error('poop')
+  const fooShouldNotShowUpInStackTrace = () => {
+    return new parseJson.JSONParseError(poop, 'this is some json', undefined, bar)
+  }
+  const bar = () => fooShouldNotShowUpInStackTrace()
+  const err1 = bar()
+  t.equal(err1.systemError, poop, 'gets the original error attached')
+  t.equal(err1.position, 0)
+  t.equal(err1.message, `poop while parsing 'this is some json'`)
+  t.equal(err1.name, 'JSONParseError')
+  err1.name = 'something else'
+  t.equal(err1.name, 'JSONParseError')
+  t.notMatch(err1.stack, /fooShouldNotShowUpInStackTrace/)
+  // calling it directly, tho, it does
+  const fooShouldShowUpInStackTrace = () => {
+    return new parseJson.JSONParseError(poop, 'this is some json')
+  }
+  const err2 = fooShouldShowUpInStackTrace()
+  t.equal(err2.systemError, poop, 'gets the original error attached')
+  t.equal(err2.position, 0)
+  t.equal(err2.message, `poop while parsing 'this is some json'`)
+  t.match(err2.stack, /fooShouldShowUpInStackTrace/)
+
+  t.end()
 })
