@@ -1,6 +1,12 @@
 'use strict'
 
 const parseError = (e, txt, context) => {
+  if (!txt) {
+    return {
+      message: e.message + ' while parsing empty string',
+      position: 0,
+    }
+  }
   const badToken = e.message.match(/^Unexpected token.*position\s+(\d+)/i)
   const errIdx = badToken ? +badToken[1]
     : e.message.match(/^Unexpected end of JSON.*/i) ? txt.length - 1

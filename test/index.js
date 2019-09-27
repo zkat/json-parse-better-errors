@@ -113,6 +113,17 @@ t.test('throws TypeError for empty arrays', t => {
   t.done()
 })
 
+t.test('handles empty string helpfully', t => {
+  t.throws(() => parseJson(''), {
+    message: 'Unexpected end of JSON input while parsing empty string',
+    name: 'JSONParseError',
+    position: 0,
+    code: 'EJSONPARSE',
+    systemError: SyntaxError
+  })
+  t.end()
+})
+
 t.test('json parse error class', t => {
   t.isa(parseJson.JSONParseError, 'function')
   // we already checked all the various index checking logic above
