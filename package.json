@@ -9,7 +9,7 @@
   "scripts": {
     "preversion": "npm t",
     "postversion": "npm publish",
-    "postpublish": "git push --follow-tags",
+    "prepublishOnly": "git push --follow-tags",
     "test": "tap",
     "snap": "tap"
   },
