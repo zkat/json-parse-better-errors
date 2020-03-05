@@ -11,8 +11,22 @@ t.test('parses JSON', t => {
       baz: [1, 2, 3, 'four']
     }
   })
-  t.deepEqual(JSON.parse(data), parseJson(data), 'does the same thing')
+  t.deepEqual(parseJson(data), JSON.parse(data), 'does the same thing')
   t.done()
+})
+
+t.test('parses JSON if it is a Buffer, removing BOM bytes', t => {
+  const str = JSON.stringify({
+    foo: 1,
+    bar: {
+      baz: [1, 2, 3, 'four']
+    }
+  })
+  const data = Buffer.from(str)
+  const bom = Buffer.concat([Buffer.from([0xEF, 0xBB, 0xBF]), data])
+  t.deepEqual(parseJson(data), JSON.parse(str))
+  t.deepEqual(parseJson(bom), JSON.parse(str), 'strips the byte order marker')
+  t.end()
 })
 
 t.test('throws SyntaxError for unexpected token', t => {

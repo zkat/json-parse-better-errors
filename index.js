@@ -53,11 +53,12 @@ class JSONParseError extends SyntaxError {
 }
 
 const parseJson = (txt, reviver, context) => {
+  const parseText = stripBOM(txt)
   context = context || 20
   try {
-    return JSON.parse(txt, reviver)
+    return JSON.parse(parseText, reviver)
   } catch (e) {
-    if (typeof txt !== 'string') {
+    if (typeof txt !== 'string' && !Buffer.isBuffer(txt)) {
       const isEmptyArray = Array.isArray(txt) && txt.length === 0
       throw Object.assign(new TypeError(
         `Cannot parse ${isEmptyArray ? 'an empty array' : String(txt)}`
@@ -67,9 +68,14 @@ const parseJson = (txt, reviver, context) => {
       })
     }
 
-    throw new JSONParseError(e, txt, context, parseJson)
+    throw new JSONParseError(e, parseText, context, parseJson)
   }
 }
+
+// Remove byte order marker. This catches EF BB BF (the UTF-8 BOM)
+// because the buffer-to-string conversion in `fs.readFileSync()`
+// translates it to FEFF, the UTF-16 BOM.
+const stripBOM = txt => String(txt).replace(/^\uFEFF/, '')
 
 module.exports = parseJson
 parseJson.JSONParseError = JSONParseError
