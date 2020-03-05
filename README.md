@@ -20,13 +20,16 @@ getting nicer errors out of `JSON.parse()`, including context and position of th
 ```javascript
 const parseJson = require('json-parse-even-better-errors')
 
-parseJson('"foo"')
+parseJson('"foo"') // returns the string 'foo'
 parseJson('garbage') // more useful error message
+parseJson.noExceptions('garbage') // returns undefined
 ```
 
 ### Features
 
 * Like JSON.parse, but the errors are better.
+* Strips a leading byte-order-mark that you sometimes get reading files.
+* Has a `noExceptions` method that returns undefined rather than throwing.
 
 ### API
 
