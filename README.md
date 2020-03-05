@@ -35,6 +35,11 @@ parseJson('garbage') // more useful error message
 Works just like `JSON.parse`, but will include a bit more information when an
 error happens.  This throws a `JSONParseError`.
 
+#### <a name="parse"></a> `parse.noExceptions(txt, reviver = null)`
+
+Works just like `JSON.parse`, but will return `undefined` rather than
+throwing an error.
+
 #### <a name="jsonparseerror"></a> `class JSONParseError(er, text, context = 20, caller = null)`
 
 Extends the JavaScript `SyntaxError` class to parse the message and provide

@@ -89,3 +89,9 @@ const stripBOM = txt => String(txt).replace(/^\uFEFF/, '')
 
 module.exports = parseJson
 parseJson.JSONParseError = JSONParseError
+
+parseJson.noExceptions = (txt, reviver) => {
+  try {
+    return JSON.parse(stripBOM(txt), reviver)
+  } catch (e) {}
+}

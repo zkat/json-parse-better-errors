@@ -185,3 +185,16 @@ t.test('json parse error class', t => {
 
   t.end()
 })
+
+t.test('parse without exception', t => {
+  const bad = 'this is not json'
+  t.equal(parseJson.noExceptions(bad), undefined, 'does not throw')
+  const obj = { this: 'is json' }
+  const good = JSON.stringify(obj)
+  t.deepEqual(parseJson.noExceptions(good), obj, 'parses json string')
+  const buf = Buffer.from(good)
+  t.deepEqual(parseJson.noExceptions(buf), obj, 'parses json buffer')
+  const bom = Buffer.concat([Buffer.from([0xEF, 0xBB, 0xBF]), buf])
+  t.deepEqual(parseJson.noExceptions(bom), obj, 'parses json buffer with bom')
+  t.end()
+})
