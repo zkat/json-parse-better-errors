@@ -29,7 +29,7 @@
   "devDependencies": {
     "nyc": "^10.3.2",
     "standard": "^9.0.2",
-    "standard-version": "^4.1.0",
+    "standard-version": "^8.0.1",
     "tap": "^10.3.3",
     "weallbehave": "^1.2.0",
     "weallcontribute": "^1.0.8"
