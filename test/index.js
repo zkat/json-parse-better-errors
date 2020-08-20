@@ -5,14 +5,46 @@ const t = require('tap')
 const parseJson = require('..')
 
 t.test('parses JSON', t => {
-  const data = JSON.stringify({
-    foo: 1,
-    bar: {
-      baz: [1, 2, 3, 'four']
+  const cases = Object.entries({
+    object: {
+      foo: 1,
+      bar: {
+        baz: [1, 2, 3, 'four']
+      }
+    },
+    array: [ 1, 2, null, 'hello', { world: true }, false ],
+    num: 420.69,
+    null: null,
+    true: true,
+    false: false,
+  }).map(([name, obj]) => [name, JSON.stringify(obj)])
+  t.plan(cases.length)
+  for (const [name, data] of cases) {
+    t.deepEqual(parseJson(data), JSON.parse(data), name)
+  }
+})
+
+t.test('preserves indentation and newline styles', t => {
+  const kIndent = Symbol.for('indent')
+  const kNewline = Symbol.for('newline')
+  const object = { name: 'object', version: '1.2.3' }
+  const array = [ 1, 2, 3, { object: true }, null ]
+  for (const newline of ['\n', '\r\n', '\n\n', '\r\n\r\n']) {
+    for (const indent of ['', '  ', '\t', ' \t \t ']) {
+      for (const [type, obj] of Object.entries({object, array})) {
+        const n = JSON.stringify({type, newline, indent})
+        const txt = JSON.stringify(obj, null, indent).replace(/\n/g, newline)
+        t.test(n, t => {
+          const res = parseJson(txt)
+          // no newline if no indentation
+          t.equal(res[kNewline], indent && newline, 'preserved newline')
+          t.equal(res[kIndent], indent, 'preserved indent')
+          t.end()
+        })
+      }
     }
-  })
-  t.deepEqual(parseJson(data), JSON.parse(data), 'does the same thing')
-  t.done()
+  }
+  t.end()
 })
 
 t.test('parses JSON if it is a Buffer, removing BOM bytes', t => {
@@ -60,7 +92,7 @@ t.test('throws SyntaxError for unexpected token', t => {
       systemError: SyntaxError
     }
   )
-  t.done()
+  t.end()
 })
 
 t.test('throws SyntaxError for unexpected end of JSON', t => {
@@ -75,7 +107,7 @@ t.test('throws SyntaxError for unexpected end of JSON', t => {
       systemError: SyntaxError
     }
   )
-  t.done()
+  t.end()
 })
 
 t.test('throws SyntaxError for unexpected number', t => {
@@ -90,7 +122,7 @@ t.test('throws SyntaxError for unexpected number', t => {
       systemError: SyntaxError
     }
   )
-  t.done()
+  t.end()
 })
 
 t.test('SyntaxError with less context (limited start)', t => {
@@ -104,7 +136,7 @@ t.test('SyntaxError with less context (limited start)', t => {
       name: 'JSONParseError',
       systemError: SyntaxError
     })
-  t.done()
+  t.end()
 })
 
 t.test('SyntaxError with less context (limited end)', t => {
@@ -119,7 +151,7 @@ t.test('SyntaxError with less context (limited end)', t => {
       systemError: SyntaxError
     }
   )
-  t.done()
+  t.end()
 })
 
 t.test('throws TypeError for undefined', t => {
@@ -127,7 +159,7 @@ t.test('throws TypeError for undefined', t => {
     () => parseJson(undefined),
     new TypeError('Cannot parse undefined')
   )
-  t.done()
+  t.end()
 })
 
 t.test('throws TypeError for non-strings', t => {
@@ -135,7 +167,7 @@ t.test('throws TypeError for non-strings', t => {
     () => parseJson(new Map()),
     new TypeError('Cannot parse [object Map]')
   )
-  t.done()
+  t.end()
 })
 
 t.test('throws TypeError for empty arrays', t => {
@@ -143,7 +175,7 @@ t.test('throws TypeError for empty arrays', t => {
     () => parseJson([]),
     new TypeError('Cannot parse an empty array')
   )
-  t.done()
+  t.end()
 })
 
 t.test('handles empty string helpfully', t => {
