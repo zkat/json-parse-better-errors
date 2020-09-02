@@ -47,6 +47,25 @@ t.test('preserves indentation and newline styles', t => {
   t.end()
 })
 
+t.test('indentation is the default when object/array is empty', t => {
+  const kIndent = Symbol.for('indent')
+  const kNewline = Symbol.for('newline')
+  const obj = '{}'
+  const arr = '[]'
+  for (const newline of ['', '\n', '\r\n', '\n\n', '\r\n\r\n']) {
+    const expect = newline || '\n'
+    for (const str of [obj, arr]) {
+      t.test(JSON.stringify({str, newline, expect}), t => {
+        const res = parseJson(str + newline)
+        t.equal(res[kNewline], expect, 'got expected newline')
+        t.equal(res[kIndent], '  ', 'got expected default indentation')
+        t.end()
+      })
+    }
+  }
+  t.end()
+})
+
 t.test('parses JSON if it is a Buffer, removing BOM bytes', t => {
   const str = JSON.stringify({
     foo: 1,
