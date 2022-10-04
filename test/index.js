@@ -9,10 +9,10 @@ t.test('parses JSON', t => {
     object: {
       foo: 1,
       bar: {
-        baz: [1, 2, 3, 'four']
-      }
+        baz: [1, 2, 3, 'four'],
+      },
     },
-    array: [ 1, 2, null, 'hello', { world: true }, false ],
+    array: [1, 2, null, 'hello', { world: true }, false],
     num: 420.69,
     null: null,
     true: true,
@@ -28,11 +28,11 @@ t.test('preserves indentation and newline styles', t => {
   const kIndent = Symbol.for('indent')
   const kNewline = Symbol.for('newline')
   const object = { name: 'object', version: '1.2.3' }
-  const array = [ 1, 2, 3, { object: true }, null ]
+  const array = [1, 2, 3, { object: true }, null]
   for (const newline of ['\n', '\r\n', '\n\n', '\r\n\r\n']) {
     for (const indent of ['', '  ', '\t', ' \t \t ']) {
-      for (const [type, obj] of Object.entries({object, array})) {
-        const n = JSON.stringify({type, newline, indent})
+      for (const [type, obj] of Object.entries({ object, array })) {
+        const n = JSON.stringify({ type, newline, indent })
         const txt = JSON.stringify(obj, null, indent).replace(/\n/g, newline)
         t.test(n, t => {
           const res = parseJson(txt)
@@ -55,7 +55,7 @@ t.test('indentation is the default when object/array is empty', t => {
   for (const newline of ['', '\n', '\r\n', '\n\n', '\r\n\r\n']) {
     const expect = newline || '\n'
     for (const str of [obj, arr]) {
-      t.test(JSON.stringify({str, newline, expect}), t => {
+      t.test(JSON.stringify({ str, newline, expect }), t => {
         const res = parseJson(str + newline)
         t.equal(res[kNewline], expect, 'got expected newline')
         t.equal(res[kIndent], '  ', 'got expected default indentation')
@@ -70,8 +70,8 @@ t.test('parses JSON if it is a Buffer, removing BOM bytes', t => {
   const str = JSON.stringify({
     foo: 1,
     bar: {
-      baz: [1, 2, 3, 'four']
-    }
+      baz: [1, 2, 3, 'four'],
+    },
   })
   const data = Buffer.from(str)
   const bom = Buffer.concat([Buffer.from([0xEF, 0xBB, 0xBF]), data])
@@ -84,17 +84,17 @@ t.test('better errors when faced with \\b and other malarky', t => {
   const str = JSON.stringify({
     foo: 1,
     bar: {
-      baz: [1, 2, 3, 'four']
-    }
+      baz: [1, 2, 3, 'four'],
+    },
   })
   const data = Buffer.from(str)
   const bombom = Buffer.concat([Buffer.from([0xEF, 0xBB, 0xBF, 0xEF, 0xBB, 0xBF]), data])
   t.throws(() => parseJson(bombom), {
-    message: /\(0xFEFF\) in JSON at position 0/
+    message: /\(0xFEFF\) in JSON at position 0/,
   }, 'only strips a single BOM, not multiple')
   const bs = str + '\b\b\b\b\b\b\b\b\b\b\b\b'
   t.throws(() => parseJson(bs), {
-    message: /^Unexpected token "\\b" \(0x08\) in JSON at position.*\\b"$/
+    message: /^Unexpected token "\\b" \(0x08\) in JSON at position.*\\b"$/,
   })
   t.end()
 })
@@ -108,7 +108,7 @@ t.test('throws SyntaxError for unexpected token', t => {
       code: 'EJSONPARSE',
       position: 1,
       name: 'JSONParseError',
-      systemError: SyntaxError
+      systemError: SyntaxError,
     }
   )
   t.end()
@@ -119,11 +119,11 @@ t.test('throws SyntaxError for unexpected end of JSON', t => {
   t.throws(
     () => parseJson(data),
     {
-      message: 'Unexpected end of JSON input while parsing "{\\\"foo: bar}"',
+      message: 'Unexpected end of JSON input while parsing "{\\\\"foo: bar}"',
       code: 'EJSONPARSE',
       position: 10,
       name: 'JSONParseError',
-      systemError: SyntaxError
+      systemError: SyntaxError,
     }
   )
   t.end()
@@ -138,7 +138,7 @@ t.test('throws SyntaxError for unexpected number', t => {
       code: 'EJSONPARSE',
       position: 0,
       name: 'JSONParseError',
-      systemError: SyntaxError
+      systemError: SyntaxError,
     }
   )
   t.end()
@@ -153,7 +153,7 @@ t.test('SyntaxError with less context (limited start)', t => {
       code: 'EJSONPARSE',
       position: 8,
       name: 'JSONParseError',
-      systemError: SyntaxError
+      systemError: SyntaxError,
     })
   t.end()
 })
@@ -163,11 +163,11 @@ t.test('SyntaxError with less context (limited end)', t => {
   t.throws(
     () => parseJson(data, null, 2),
     {
-      message: 'Unexpected token "a" \(0x61\) in JSON at position 0 while parsing near "ab..."',
+      message: 'Unexpected token "a" \\(0x61\\) in JSON at position 0 while parsing near "ab..."',
       code: 'EJSONPARSE',
       position: 0,
       name: 'JSONParseError',
-      systemError: SyntaxError
+      systemError: SyntaxError,
     }
   )
   t.end()
@@ -203,7 +203,7 @@ t.test('handles empty string helpfully', t => {
     name: 'JSONParseError',
     position: 0,
     code: 'EJSONPARSE',
-    systemError: SyntaxError
+    systemError: SyntaxError,
   })
   t.end()
 })
