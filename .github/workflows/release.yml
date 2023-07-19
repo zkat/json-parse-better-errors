@@ -10,9 +10,7 @@ on:
         type: string
   push:
     branches:
-      - main
       - latest
-      - release/v*
 
 permissions:
   contents: write
